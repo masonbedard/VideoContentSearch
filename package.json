@@ -1,0 +1,28 @@
+{
+  "name": "VideoContentSearch",
+  "version": "0.0.0",
+  "description": "A tool for quickly searching content within videos",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "masonbedard",
+  "license": "ISC",
+  "devDependencies": {
+    "browserify": "^6.2.0",
+    "gulp": "^3.8.10",
+    "hbsfy": "^2.2.0",
+    "jquery-browserify": "^1.8.1",
+    "vinyl-source-stream": "^1.0.0"
+  },
+  "dependencies": {
+    "body-parser": "^1.9.2",
+    "diskdb": "^0.1.14",
+    "express": "^4.10.2",
+    "handlebars": "^2.0.0",
+    "html-entities": "^1.1.1",
+    "lodash": "^2.4.1",
+    "request": "^2.47.0",
+    "sset": "0.0.4"
+  }
+}

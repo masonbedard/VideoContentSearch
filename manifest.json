@@ -1,0 +1,17 @@
+{
+    "manifest_version": 2,
+
+    "name": "VideoContentSearch",
+    "description": "This extension allows searching within videos for specific words and phrases.",
+    "version": "1.0",
+
+    "browser_action": {
+        "default_icon": "public/icon.png",
+        "default_popup": "public/index.html"
+    },
+    "permissions": [
+        "tabs",
+        "http://localhost:8989/*",
+        "https://www.youtube.com/*"
+    ]
+}
