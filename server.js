@@ -1,9 +1,13 @@
+var _ = require('lodash');
 var express = require("express");
 var bodyParser = require("body-parser");
 var request = require("request");
 var entities = new (require('html-entities').AllHtmlEntities)();
+var db = require('diskdb');
 var CaptionTrie = require('./src/js/models/captionTrie');
 var TimeRange = require('./src/js/models/timeRange');
+
+db.connect('./data', ['captionTries']);
 
 var app = express();
 app.use(express.static(__dirname + "/../public"));
@@ -13,25 +17,27 @@ var server = app.listen(8989);
 
 app.post('/init', function(req, res) {
 
-    console.log(req.body.url)
+    var url = req.body.url;
+    var videoId = req.body.videoId;
+
+    var captionTrie = db.captionTries.findOne({'videoId': videoId});
+    if (captionTrie) {
+        res.json({'err': false, 'captionTrieData': captionTrie.data});
+        return;
+    }
 
     var options = {
         'url': 'http://www.serpsite.com/transcript.php',
         'qs': {
-            'videoid': req.body.url
+            'videoid': url
         }
     };
-
-    console.log('here')
-
     request(options, function(err, response, body) {
-        console.log('got a response')
         if (err) {
             console.log('got an error on request to serp');
             res.json({'err': true});
             return;
         }
-        console.log(body)
         var srtRegExp = /<textarea name= 'srt' style = 'display:none;'>([^]*?)<\/textarea>/;
         var srt = srtRegExp.exec(body);
         if (!srt) {
@@ -57,21 +63,38 @@ app.post('/init', function(req, res) {
             captionTrie.insert(caption, timeRange);
         }
 
-        console.log('got a caption trie')
-        console.log(captionTrie)
-
-        //save it to this video id
-
-        res.json({'err': false, 'captionTrieJSON': captionTrie.children});
-
+        db.captionTries.save({'videoId': videoId, 'data': captionTrie.children});
+        res.json({'err': false, 'captionTrieData': captionTrie.children});
     });
-
 
 });
 
 app.post('/save', function(req, res) {
-    console.log(req.body); 
-    res.json({'err': false});
+
+    var url = req.body.url;
+    var videoId = req.body.videoId;
+    var timeRange = req.body.timeRange;
+    var tags = req.body.tags;
+
+    console.log('here');
+    console.log(tags);
+    console.log(timeRange);
+
+    var captionTrie = db.captionTries.findOne({'videoId': videoId});
+    if (!captionTrie) {
+        res.json({'err': true});
+        return;
+    }
+    captionTrie = new CaptionTrie(captionTrie.data);
+    console.log(captionTrie);
+    _.each(tags, function(tag) {
+        captionTrie.insert(tag, timeRange); 
+    });
+    if (db.captionTries.update({'videoId': videoId}, {'data': captionTrie.children}).updated !== 1) {
+        res.json({'err': true});
+        return;
+    }
+    res.json({'err': false, 'captionTrieData': captionTrie.children});
 });
 
 console.log("listening on port 8989");

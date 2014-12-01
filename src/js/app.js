@@ -97,7 +97,7 @@ var main = function() {
         $searchResults.append($searchResultsContainer);
     });
 
-    $('#search-results').on('click', 'p.search-result', function() {
+    $('#search-results').on('click', 'li.search-result', function() {
         var currentTime = $(this).data('currentTime');
         chrome.tabs.executeScript({
             'code': 'document.getElementsByTagName("video")[0].currentTime = ' + currentTime + ';' 
