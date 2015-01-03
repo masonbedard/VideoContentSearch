@@ -25,4 +25,5 @@
 - [ ] use a real speech API instead of captions
 - [ ] make voting actually work
 - [ ] improve ui
+- [ ] fix caching
 
