@@ -4,7 +4,7 @@
 ####Install latest version of Homebrew
     ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
     brew update
-###Use Homebrew to install node
+####Use Homebrew to install node
     brew install node
 ####Within your desired directory, clone this repo
     git clone https://github.com/masonbedard/VideoContentSearch.git
