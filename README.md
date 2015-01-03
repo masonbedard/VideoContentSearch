@@ -1,5 +1,5 @@
 #VideoContentSearch
-##Setting up for development on a Mac using Homebrew
+##Set Up
 ####Open up terminal
 ####Install latest version of Homebrew
     ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
@@ -12,5 +12,10 @@
     npm install
 ####Open up Chrome and navigate to chrome://extensions, and then drag and drop into this page the directory in which you cloned the repo into
 ####Return to terminal and start the server
+    node server.js
+##Development
+####If modifying code that runs in the extension, run the following and reopen the extension.
+    ./node_modules/.bin/gulp
+####If modifying code that is only run on the server, just rerun the command to start the server from above.
     node server.js
 
