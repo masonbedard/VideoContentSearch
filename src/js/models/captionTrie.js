@@ -1,5 +1,6 @@
 var _ = require('lodash');
 var SortedSet = require('sset');
+var ShortId = require('shortid');
 
 var SearchResult = function(timeRanges, length) {
     this.timeRanges = timeRanges;

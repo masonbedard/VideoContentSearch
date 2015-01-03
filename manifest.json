@@ -6,12 +6,13 @@
     "version": "1.0",
 
     "browser_action": {
-        "default_icon": "public/icon.png",
+        "default_icon": "public/IC571556.png",
         "default_popup": "public/index.html"
     },
     "permissions": [
         "tabs",
         "http://localhost:8989/*",
-        "https://www.youtube.com/*"
+        "https://www.youtube.com/*",
+        "https://www.khanacademy.org/*"
     ]
 }

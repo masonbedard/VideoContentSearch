@@ -15,9 +15,14 @@ app.use(bodyParser.json());
 
 var server = app.listen(8989);
 
+var constructYoutubeUrl = function(videoId) {
+    return 'https://www.youtube.com/watch?v=' + videoId;
+};
+
 app.post('/init', function(req, res) {
 
-    var url = req.body.url;
+    console.log('init');
+
     var videoId = req.body.videoId;
 
     var captionTrie = db.captionTries.findOne({'videoId': videoId});
@@ -29,7 +34,7 @@ app.post('/init', function(req, res) {
     var options = {
         'url': 'http://www.serpsite.com/transcript.php',
         'qs': {
-            'videoid': url
+            'videoid': constructYoutubeUrl(videoId)
         }
     };
     request(options, function(err, response, body) {
@@ -65,20 +70,18 @@ app.post('/init', function(req, res) {
 
         db.captionTries.save({'videoId': videoId, 'data': captionTrie.children});
         res.json({'err': false, 'captionTrieData': captionTrie.children});
+        console.log('gave response');
     });
 
 });
 
 app.post('/save', function(req, res) {
 
-    var url = req.body.url;
+    console.log('save');
+
     var videoId = req.body.videoId;
     var timeRange = req.body.timeRange;
     var tags = req.body.tags;
-
-    console.log('here');
-    console.log(tags);
-    console.log(timeRange);
 
     var captionTrie = db.captionTries.findOne({'videoId': videoId});
     if (!captionTrie) {
@@ -95,6 +98,13 @@ app.post('/save', function(req, res) {
         return;
     }
     res.json({'err': false, 'captionTrieData': captionTrie.children});
+});
+
+app.post('/vote', function(req, res) {
+    console.log('got a vote');
+    console.log(req.body.scoreDiff);
+    console.log(req.body.videoId);
+    res.json({'err': false})
 });
 
 console.log("listening on port 8989");
