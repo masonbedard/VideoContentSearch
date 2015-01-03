@@ -11,10 +11,10 @@
 ####Within root of cloned project, install the necessary dependencies for this project.
     npm install
 ####Open up Chrome and navigate to chrome://extensions, and then drag and drop into this page the directory in which you cloned the repo.
-####Return to terminal and start the server.
+####Return to terminal and start the server from the root of the directory.
     node server.js
 ##Development
-####If modifying code that runs in the extension, run the following and reopen the extension.
+####If modifying code that runs in the extension, run the following from the root of the directory and reopen the extension.
     ./node_modules/.bin/gulp
 ####If modifying code that is only run on the server, just rerun the command to start the server from above.
     node server.js
