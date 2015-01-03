@@ -1,6 +1,6 @@
 #VideoContentSearch
 ##Set Up
-####Open up terminal.
+####Open up terminal to run the following commands.
 ####Install latest version of Homebrew.
     ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
     brew update
