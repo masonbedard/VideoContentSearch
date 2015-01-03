@@ -18,4 +18,9 @@
     ./node_modules/.bin/gulp
 ####If modifying code that is only run on the server, just rerun the command to start the server from above.
     node server.js
+##To Do
+- [ ] fix database
+- [ ] fix models i.e. making time range use the time model
+- [ ] separate cluttered code into separate modules
+- [ ] use a real speech API instead of captions
 
