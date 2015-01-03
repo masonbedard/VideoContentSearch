@@ -23,4 +23,6 @@
 - [ ] fix models i.e. making time range use the time model
 - [ ] separate cluttered code into separate modules
 - [ ] use a real speech API instead of captions
+- [ ] make voting actually work
+- [ ] improve ui
 
