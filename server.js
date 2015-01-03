@@ -25,6 +25,7 @@ app.post('/init', function(req, res) {
 
     var videoId = req.body.videoId;
 
+    // i dont think this data base works and i think the data structures need to be reexamined.
     var captionTrie = db.captionTries.findOne({'videoId': videoId});
     if (captionTrie) {
         res.json({'err': false, 'captionTrieData': captionTrie.data});
@@ -43,6 +44,7 @@ app.post('/init', function(req, res) {
             res.json({'err': true});
             return;
         }
+        // this stuff should be in api modules not directly in server.
         var srtRegExp = /<textarea name= 'srt' style = 'display:none;'>([^]*?)<\/textarea>/;
         var srt = srtRegExp.exec(body);
         if (!srt) {

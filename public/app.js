@@ -19,6 +19,7 @@ var progressBarWidth = 160;
 var captionTrie;
 var domain;
 
+// a model for a time object. could probably be a separate file. maybe not necessary
 var Time = function(currentTime) {
     currentTime = Math.floor(currentTime);
     this.hours = Math.floor(currentTime / 3600);
@@ -31,30 +32,26 @@ var Time = function(currentTime) {
     this.secondsString = ('0' + this.seconds).slice(-2);
 };
 
-var getProgressBoxCSS = function(timeRange) {
-    var marginLeft = timeRange.currentTime / videoDuration * progressBarWidth; 
-    var endCurrentTime = (timeRange.endHours * 3600) + (timeRange.endMinutes * 60) + timeRange.endSeconds;
-    var timeRangeDuration = endCurrentTime - timeRange.currentTime; 
-    var width = timeRangeDuration / videoDuration * progressBarWidth;
-    return {
-        'margin-left': marginLeft + 'px',
-        'width': width + 'px'
-    };
-};
-
+// displays result of a query
 var displaySearchResults = function(query, displayEmpty) {
     var $searchResults = $('#search-results');
+
+    // empties previous results
     $searchResults.empty();
     var searchResults = captionTrie.search(query).items;
     var seenTimes = {};
+
+    // if there are results for the current query
     if (searchResults.length) {
         _.each(searchResults, function(searchResult) {
-            console.log('search result has length ' + searchResult.length);
             _.each(searchResult.timeRanges.items, function(timeRange) {
+                // avoids duplicates. not sure why there are duplicates. seems like an issue with the set data structure being used.
                 if (seenTimes[timeRange.currentTime]) {
                     return;
                 } 
                 seenTimes[timeRange.currentTime] = true;
+                // builds the string version of the time. this should probably be its own function. not sure if inside this file or outside. maybe in a view.js.
+                // called title because it is only a title of the element so that it appears on hover. the time is not displayed normally, the progress bar is.
                 var titleBuilder = [];
                 titleBuilder.push(timeRange.startHoursString);
                 titleBuilder.push(':');
@@ -67,34 +64,41 @@ var displaySearchResults = function(query, displayEmpty) {
                 titleBuilder.push(timeRange.endMinutesString);
                 titleBuilder.push(':');
                 titleBuilder.push(timeRange.endSecondsString);
+                // gives score should not be 0 by default
                 var $searchResult = $(searchResultTemplate({'title': titleBuilder.join(''), 'score': 0}));
+                // stores the time on the html element so that it can be retrieved when the element is clicked.
                 $searchResult.data('currentTime', timeRange.currentTime);
+                // determines how far the point in the progress bar should be. progress bar width should not be a constant as it is above set to 160.
                 var marginLeft = timeRange.currentTime / videoDuration * progressBarWidth;
                 $searchResult.find('.progress-box').css('margin-left', marginLeft + 'px');
+                // adds this result to the search results div
                 $searchResults.prepend($searchResult);
             });
         });
+        // sets last query to this one so that if the extension is closed and then reopened this query will be automatically done.
         localStorage.setItem('lastQuery', query);
         var $searchInput = $('#search-form').children('input:first');
+        // if the query was replaced from a previous search, the query is put into the search bar automatically so user knows what results are for.
         if ($searchInput.val() !== query) {
             $searchInput.val(query);
         }
+
+    // if there arent results for the current query
     } else {
         $searchResults.append(emptySearchResultTemplate());
         localStorage.removeItem('lastQuery');
     }
 };
 
+// initializes caption trie and should perform automatic search of last query if relevant but that's buggy.
 var initCaptionTrie = function() {
-    console.log('init caption trie');
     Comm.init(videoId, function(res) {
         if (res.err) {
            $('body').html(errorTemplate());
            return;
         }
-        console.log('got response');
         captionTrie = new CaptionTrie(res.captionTrieData);
-        console.log('ready to query');
+        // local storage stuff was slow and buggy so its actually not used at the moment. TODO.
         var query = localStorage.getItem('lastQuery');
         if (query && localStorage.getItem('videoId') === videoId) {
            // displaySearchResults(query);
@@ -105,43 +109,50 @@ var initCaptionTrie = function() {
 
 var main = function() {
 
+    // query for the active tab
     chrome.tabs.query({'active': true}, function(tabs) {
         var url = tabs[0].url;
+        // if it couldnt get a url, give an error. TODO: error messages more descriptive.
         if (!url) {
             $('body').html(errorTemplate());
             return;
         }
+        // for youtube
         if (url.indexOf('youtube') !== -1) {
             domain = 'youtube';
             var videoIdRegExp = /v=(\S+)/;
             videoId = videoIdRegExp.exec(url);
             if (!videoId) {
                 console.log('no video id from youtube');
+                // show error message
                 return; 
             }
             videoId = videoId[1];
+            // now has video id from url and now gets duration of video
             chrome.tabs.executeScript({
                 'code': 'document.getElementsByTagName("video")[0].duration;'            
             }, function(resultArr) {
                 if (!resultArr || !resultArr[0]) {
                     console.log('video duration did not work');
+                    // show error message
                     return;
                 }
                 videoDuration = resultArr[0];
-            });
-            initCaptionTrie();
-        } else if (url.indexOf('khanacademy') !== -1) {
-            domain = 'khanacademy';
-            chrome.tabs.executeScript({
-                'code': 'document.getElementsByTagName("iframe")[0].getAttribute("data-youtubeid")'
-            }, function(resultArr) { 
-                if (!resultArr || !resultArr[0]) {
-                    console.log('no video id from khan academy'); 
-                    return;
-                }
-                videoId = resultArr[0];
                 initCaptionTrie();
             });
+        // for khanacademy but doesnt work because of iframes. thats why its commented
+        // } else if (url.indexOf('khanacademy') !== -1) {
+        //     domain = 'khanacademy';
+        //     chrome.tabs.executeScript({
+        //         'code': 'document.getElementsByTagName("iframe")[0].getAttribute("data-youtubeid")'
+        //     }, function(resultArr) { 
+        //         if (!resultArr || !resultArr[0]) {
+        //             console.log('no video id from khan academy'); 
+        //             return;
+        //         }
+        //         videoId = resultArr[0];
+        //         initCaptionTrie();
+        //     });
         } else {
             console.log('say videos from here not yet supported');
         }
